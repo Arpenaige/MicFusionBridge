@@ -26,7 +26,7 @@ namespace DoNotUseThisNamespace
 //https://learn.microsoft.com/ru-ru/windows/win32/api/audioenginebaseapo/ne-audioenginebaseapo-apo_flag
 long MicFusionBridge::instCount = 0;
 const CRegAPOProperties<1> MicFusionBridge::regProperties(
-	__uuidof(MicFusionBridge), L"MicFusionBridge", L"In Development, see original github.com/TODO_ADRESS page", 1, 0, __uuidof(IAudioProcessingObject),
+	__uuidof(MicFusionBridge), L"MicFusionBridge", L"Copyright (c) 2023 Arpenaige | MIT License | https://github.com/Arpenaige/MicFusionBridge", 1, 0, __uuidof(IAudioProcessingObject),
 	(APO_FLAG)(APO_FLAG_SAMPLESPERFRAME_MUST_MATCH | APO_FLAG_FRAMESPERSECOND_MUST_MATCH | APO_FLAG_BITSPERSAMPLE_MUST_MATCH | APO_FLAG_INPLACE));
 
 MicFusionBridge::MicFusionBridge(IUnknown* pUnkOuter)
