@@ -14,100 +14,7 @@
 #include "MicFusionBridge.h"
 #include "ClassFactory.h"
 
-//using namespace std;
-
 static HINSTANCE hModule;
-
-//Logger* logger;
-
-//APOEvents* g_pEvents;
-
-//void ConsoleLoad()
-//{
-//	AllocConsole();
-//	freopen_s((FILE**)stdin, "CONIN$", "r", stdin);
-//	freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
-//	SetConsoleTitleA("APO Debug Console");
-//
-//	setlocale(LC_ALL, "ru");
-//}
-//
-//void ConsoleUnload()
-//{
-//	fclose((FILE*)stdin);
-//	fclose((FILE*)stdout);
-//	FreeConsole();
-//}
-
-//bool can_disable_thread = false;
-//
-//DWORD WINAPI Entry(LPVOID lpThreadParametr)
-//{
-//	while (!can_disable_thread)
-//	{
-//		using namespace std::chrono_literals;
-//		std::this_thread::sleep_for(10ms);
-//
-//		MicFusionBridge::mut.lock();
-//		if (MicFusionBridge::samples.size())
-//		{
-//			static std::ofstream fout("C:\\Users\\Firefox\\Downloads\\log.txt", std::ios_base::out | std::ios_base::trunc);
-//
-//			auto Xyu = GetLastError();
-//
-//			fout << Xyu << '\n';
-//			cout << Xyu << '\n';
-//
-//			for (size_t i = 0; i < MicFusionBridge::samples.size() && fout.is_open(); i++)
-//			{
-//				fout << MicFusionBridge::samples[i] << '\n';
-//			}
-//
-//			MicFusionBridge::samples.clear();
-//		}
-//		MicFusionBridge::mut.unlock();
-//
-//		//static std::ofstream fout("C:\\Users\\Firefox\\Downloads\\log.txt"/*, std::ios_base::out | std::ios_base::trunc*/);
-//		//static std::ofstream fout("C:\\Windows\\System32\\log.txt"/*, std::ios_base::out | std::ios_base::trunc*/);
-//
-//		//static int i = 0;
-//		//fout << i++ << '\n';
-//	}
-//
-//	FreeLibraryAndExitThread(static_cast<HMODULE>(lpThreadParametr), EXIT_SUCCESS);
-//}
-
-
-
-//void ExitFunction()
-//{
-//	SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_INFO(0, TM("ExitFunction()")));
-//
-//	P7_Flush();
-//}
-//
-//class ExitRAII
-//{
-//public:
-//	ExitRAII()
-//	{
-//		SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_INFO(0, TM("ExitRAII()")));
-//
-//		P7_Flush();
-//
-//		atexit(ExitFunction);
-//	}
-//	~ExitRAII()
-//	{
-//		SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_INFO(0, TM("~ExitRAII()")));
-//
-//		P7_Flush();
-//	}
-//};
-//
-//ExitRAII eraii;
-
-
 
 BOOL WINAPI DllMain(HINSTANCE hModule, DWORD dwReason, void* lpReserved)
 {
@@ -121,11 +28,6 @@ BOOL WINAPI DllMain(HINSTANCE hModule, DWORD dwReason, void* lpReserved)
 		const bool isDisabledThreadLibraryCalls = DisableThreadLibraryCalls(hModule);
 		SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_INFO(0, TM("DisableThreadLibraryCalls: %s"),
 			isDisabledThreadLibraryCalls ? L"True" : L"False"));
-
-		//logger = new Logger;
-
-		//logger->Log("Log was created and dwReason == DLL_PROCESS_ATTACH\n");
-		//logger->Log(std::format("isDisabledThreadLibraryCalls{}\n", isDisabledThreadLibraryCalls).c_str());
 
 		g_pEvents = new APOEvents;  //TODO: или call_once может заиспользовать да и вообще перевести на unique_ptr думаю лучше
 	}
