@@ -688,30 +688,34 @@ HRESULT MicFusionBridge::LockForProcess(UINT32 u32NumInputConnections,
 				Code == ERROR_SUCCESS)
 			{
 				ApplyFixMonoSound = FixMonoSound;
+
+				SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_INFO(0, TM("[FixMonoSound] - GetValueFunction success")));
 			}
 			else
 			{
-				SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_TRACE(0, TM("GetValueFunction(%s, FixMonoSound) error: %s"),
+				SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_TRACE(0, TM("[FixMonoSound] - GetValueFunction(%s, FixMonoSound) error: %s"),
 					BaseSoftwarePathGUID.c_str(), ParseWindowsError(Code).c_str()));
 				ApplyFixMonoSound = false;
 			}
 		}
 		else
 		{
-			SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_TRACE(0, TM("TryOpen(%s, GENERIC_READ | KEY_QUERY_VALUE) error: %s"),
+			SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_TRACE(0, TM("[FixMonoSound] - TryOpen(%s, GENERIC_READ | KEY_QUERY_VALUE) error: %s"),
 				BaseSoftwarePathGUID.c_str(), ParseWindowsError(BaseSoftwareKeyValue.Code()).c_str()));
 			ApplyFixMonoSound = false;
 		}
 	}
 	else
 	{
-		SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_CRITICAL(0, TM("CurrentAudioDeviceGUIDString is empty")));
+		SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_CRITICAL(0, TM("[FixMonoSound] - CurrentAudioDeviceGUIDString is empty")));
 	}
 
 	SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_TRACE(0, TM("u32MaxFrameCount: %lu"),
 		u32MaxFrameCount));
 	SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_TRACE(0, TM("APOProcess Buffer Length: %f ms"),
 		(static_cast<float>(u32MaxFrameCount) / APOFrameRate) * 1000.f));
+	SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_TRACE(0, TM("ApplyFixMonoSound: %d ms"),
+		static_cast<int>(ApplyFixMonoSound)));
 
 	const size_t SCSPQueueSize = std::ceil(APOFrameRate) * APOChannelCount;   //1 Second buffer
 	SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_TRACE(0, TM("SCSPQueue length: %llu"),
@@ -809,30 +813,17 @@ void MicFusionBridge::APOProcess(UINT32 u32NumInputConnections,
 				ppInputConnections[0]->u32ValidFrameCount, ppOutputConnections[0]->u32ValidFrameCount));
 		}
 
-		if (ApplyFixMonoSound && APOChannelCount == 2)
-		{
-			const uint64_t ValidFrameCount = ppInputConnections[0]->u32ValidFrameCount;
-			bool LeftHasSignal = false, RightHasSignal = false;
-			for (size_t i = 0; (i < ValidFrameCount * 2lu) && (!LeftHasSignal || !RightHasSignal); i+=2)
-			{
-														    // based on (1 / 2147483647) ~= 4e-10f and divide by 2 = 2e-10f
-				LeftHasSignal = std::abs(pInputFrames[i]) > 2e-10f;
-				RightHasSignal = std::abs(pInputFrames[i + 1]) > 2e-10f;
-			}
+		LoggerTimeout(SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_CRITICAL(0, TM("ApplyFixMonoSound: %d\tAPOChannelCount: %lu"),
+			static_cast<int>(ApplyFixMonoSound), APOChannelCount)), 1000.f /*seconds*/);
 
-			if (LeftHasSignal && !RightHasSignal)
+		//Currently use from left samples and copy this to right
+		//for some reasone in Arturia MiniFuse 4 -> right samples not equal as 0(approximately 0.000011) and hopping db amount around ~50(+-(5-10))
+		if (ApplyFixMonoSound && APOChannelCount == 2)
+		{		
+			const uint64_t ValidFrameCount = ppInputConnections[0]->u32ValidFrameCount;
+			for (size_t i = 0; i < ValidFrameCount * APOChannelCount; i += 2)
 			{
-				for (size_t i = 0; i < ValidFrameCount * 2lu; i+=2)
-				{
-					pInputFrames[i + 1] = pInputFrames[i];
-				}
-			}
-			else if (!LeftHasSignal && RightHasSignal)
-			{
-				for (size_t i = 0; i < ValidFrameCount * 2lu; i += 2)
-				{
-					pInputFrames[i] = pInputFrames[i + 1];
-				}
+				pInputFrames[i + 1] = pInputFrames[i];
 			}
 		}
 

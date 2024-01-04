@@ -1294,6 +1294,16 @@ int ParseMainArguments(/*int argc, char** argv*/)
 	SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_TRACE(0, TM("ControlAPO.exe getted params: %s"),
 		Params.c_str()));
 
+	//if (argc > 2 && !wcscmp(argv[1], L"--ParrentPID"))
+	//{
+	//	DWORD ParrentPID = std::stoi(argv[2]);
+
+	//	if (ParrentPID > 4)
+	//	{
+
+	//	}
+	//}
+
 	for (int i = 0; i < argc; i++)
 	{
 		if (!wcscmp(argv[i], L"--RegisterAPO")

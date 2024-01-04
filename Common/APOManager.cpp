@@ -95,6 +95,8 @@ int ManageAPO(ManageAPOParams MAPOE, std::wstring AddedParameters)
 		{
 			ProcessHandle.reset(SEW.hProcess);
 
+            //TODO: DuplicateHandle + прокинуть его в тот процесс каким то образом
+
 			if (WaitForSingleObject(ProcessHandle.get(), INFINITE) == WAIT_FAILED)
 			{
                 SafePointerDereference(Singleton<VariableMainLogger>::GetInstance().GetTracePtr(), P7_CRITICAL(0, TM("WaitForSingleObject error: %s"),

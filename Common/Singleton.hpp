@@ -3,7 +3,7 @@
 #include <mutex>
 #include <format>
 
-#include "GlobalSystemTimer.hpp"
+//#include "GlobalSystemTimer.hpp"
 
 #include <shlobj_core.h >
 
